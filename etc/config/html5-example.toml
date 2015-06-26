@@ -1,0 +1,4 @@
+[game_server]
+matching_endpoint = "ws://localhost:8080/matching"
+[html5_client_server]
+assets_path = "/Users/tomyhero/go/src/github.com/tomyhero/submarine-game/assets"
