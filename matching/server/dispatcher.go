@@ -22,6 +22,7 @@ func (self *Dispatcher) loadActions() {
 
 	handler := handler.Handler{}
 	actions["search"] = reflect.ValueOf(handler).MethodByName("Search")
+	actions["found"] = reflect.ValueOf(handler).MethodByName("Found")
 	self.actions = actions
 }
 
@@ -31,12 +32,14 @@ func (self *Dispatcher) findAction(cmd string) (reflect.Value, bool) {
 }
 
 func (self *Dispatcher) Dispatch(d map[string]interface{}) error {
+
+	fmt.Println("Call Dispatch", d)
 	cmd, ok := d["cmd"]
+
 	if !ok {
 		fmt.Println("does not have cmd section")
 		return fmt.Errorf("CMD_NOT_FOUND")
 	}
-
 	action, hasCommand := self.findAction(cmd.(string))
 
 	if !hasCommand {
@@ -53,6 +56,8 @@ func (self *Dispatcher) Dispatch(d map[string]interface{}) error {
 func (self *Dispatcher) findData(cmd string) (data.Interface, error) {
 	if cmd == "search" {
 		return data.Search{}, nil
+	} else if cmd == "found" {
+		return data.Found{}, nil
 	}
 
 	return nil, fmt.Errorf("NOT_FOUND")
