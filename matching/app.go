@@ -1,10 +1,33 @@
 package main
 
 import (
-	"github.com/tomyhero/submarine-game/matching/server"
+	"flag"
+	"fmt"
+	"github.com/tomyhero/battleship-game/matching/server"
+	"github.com/tomyhero/battleship-game/utils"
 )
 
+var flagValue struct {
+	ConfigPath string
+	Port       int
+}
+
+func init() {
+	flag.StringVar(&flagValue.ConfigPath, "config", "./etc/config/html5-example.toml", "set config path")
+	flag.IntVar(&flagValue.Port, "port", 8080, "port")
+	flag.Parse()
+}
+
 func main() {
+
+	config, err := utils.NewConfigFromFile(flagValue.ConfigPath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("Loaded Config", config)
+
 	server := server.Server{}
-	server.ListenAndServe()
+	server.ListenAndServe(flagValue.Port)
 }

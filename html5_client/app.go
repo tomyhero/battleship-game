@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/tomyhero/submarine-game/html5_client/app/game"
-	"github.com/tomyhero/submarine-game/utils"
+	"github.com/tomyhero/battleship-game/html5_client/app/game"
+	"github.com/tomyhero/battleship-game/utils"
 	"github.com/zenazn/goji"
 )
 

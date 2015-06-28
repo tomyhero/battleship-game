@@ -1,7 +1,7 @@
 package game
 
 import (
-	"github.com/tomyhero/submarine-game/utils"
+	"github.com/tomyhero/battleship-game/utils"
 	"github.com/zenazn/goji/web"
 	"github.com/zenazn/goji/web/middleware"
 )
