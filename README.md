@@ -1,7 +1,7 @@
 HTML5 CLIENT SERVER
 ---------------
 
-HTML5 Clinet Server.
+HTML5 Client Server.
 
 MATCHING SERVER
 ---------------

@@ -8,23 +8,44 @@
 
 
 <script type="text/javascript">
-var game = { 
-    connect : function(){
+var matching = { 
+    socket : null,
+    start : function(){
+        matching._connect();
+        matching._search();
+    },
+    _connect : function(){
         var url = "{{.matching_endpoint}}";
-        var ws;
 
         // FireFoxとの互換性を考慮してインスタンス化
-        if ("WebSocket" in window) {
-            ws = new WebSocket(url);
-        } else if ("MozWebSocket" in window) {
-            ws = new MozWebSocket(url);
+            
+        if ("MozWebSocket" in window) {
+            matching.socket = new MozWebSocket(url);
+        }
+        else {
+            matching.socket = new WebSocket(url);
         }
 
-        return ws;
+        matching.socket.onmessage = function(event) {
+            if (event && event.data) {
+                console.log(event.data);
+            }
+        };
+
+
+    },
+    _search : function(){
+
+        // need to way to open
+        matching.socket.onopen = function() { 
+            matching.socket.send('{"cmd":"search"}');
+        };
+
     }
+
 };
 
- var ws = game.connect();
+matching.start();
 
 </script>
 

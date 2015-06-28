@@ -28,6 +28,6 @@ func main() {
 
 	fmt.Println("Loaded Config", config)
 
-	server := server.Server{}
+	server := server.NewServer()
 	server.ListenAndServe(flagValue.Port)
 }
