@@ -3,16 +3,17 @@ package server
 import (
 	"fmt"
 	"github.com/tomyhero/battleship-game/matching/data"
-	"github.com/tomyhero/battleship-game/matching/handler"
+	"golang.org/x/net/websocket"
 	"reflect"
 )
 
 type Dispatcher struct {
 	actions map[string]reflect.Value
+	server  *Server
 }
 
-func NewDispatcher() Dispatcher {
-	dispatcher := Dispatcher{}
+func NewDispatcher(server *Server) Dispatcher {
+	dispatcher := Dispatcher{server: server}
 	dispatcher.loadActions()
 	return dispatcher
 }
@@ -20,7 +21,7 @@ func NewDispatcher() Dispatcher {
 func (self *Dispatcher) loadActions() {
 	actions := map[string]reflect.Value{}
 
-	handler := handler.Handler{}
+	handler := Handler{server: self.server}
 	actions["search"] = reflect.ValueOf(handler).MethodByName("Search")
 	actions["found"] = reflect.ValueOf(handler).MethodByName("Found")
 	self.actions = actions
@@ -31,7 +32,7 @@ func (self *Dispatcher) findAction(cmd string) (reflect.Value, bool) {
 	return action, ok
 }
 
-func (self *Dispatcher) Dispatch(d map[string]interface{}) error {
+func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{}) error {
 
 	fmt.Println("Call Dispatch", d)
 	cmd, ok := d["cmd"]
@@ -48,7 +49,7 @@ func (self *Dispatcher) Dispatch(d map[string]interface{}) error {
 
 	data, _ := self.findData(cmd.(string))
 	data.Load(d)
-	action.Call([]reflect.Value{reflect.ValueOf(data)})
+	action.Call([]reflect.Value{reflect.ValueOf(conn), reflect.ValueOf(data)})
 	return nil
 }
 

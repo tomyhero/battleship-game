@@ -7,17 +7,13 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"time"
+	"sync"
 )
 
-type Status struct {
-	time    time.Time
-	matchID string
-}
-
 type Server struct {
-	Config *utils.Config
-	Conns  map[*websocket.Conn]*Status
+	Config      *utils.Config
+	Waitings    []*websocket.Conn
+	WaitingLock sync.RWMutex
 }
 
 func NewServer() Server {
@@ -26,7 +22,7 @@ func NewServer() Server {
 }
 
 func (self *Server) ListenAndServe(port int) {
-	self.Conns = map[*websocket.Conn]*Status{}
+	self.Waitings = []*websocket.Conn{}
 	http.Handle("/matching", websocket.Handler(self.webSocketHandler))
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
@@ -36,9 +32,7 @@ func (self *Server) ListenAndServe(port int) {
 
 func (self *Server) webSocketHandler(conn *websocket.Conn) {
 
-	dispatcher := NewDispatcher()
-
-	self.Conns[conn] = &Status{time: time.Now()}
+	dispatcher := NewDispatcher(self)
 
 	for {
 		data := map[string]interface{}{}
@@ -58,7 +52,7 @@ func (self *Server) webSocketHandler(conn *websocket.Conn) {
 			}
 		}
 
-		err = dispatcher.Dispatch(data)
+		err = dispatcher.Dispatch(conn, data)
 
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Dispatch Failed %s", err))
@@ -66,8 +60,24 @@ func (self *Server) webSocketHandler(conn *websocket.Conn) {
 	}
 
 	defer func() {
+		self.WaitingLock.Lock()
+
+		self.DeleteWaitingEntry(conn)
 		conn.Close()
-		delete(self.Conns, conn)
+
+		self.WaitingLock.Unlock()
 	}()
 
+}
+
+func (self *Server) DeleteWaitingEntry(conn *websocket.Conn) {
+	match := -1
+	for i := 0; i < len(self.Waitings); i++ {
+		if self.Waitings[i] == conn {
+			match = i
+		}
+	}
+	if match != -1 {
+		self.Waitings = append(self.Waitings[:match], self.Waitings[match+1:]...)
+	}
 }
