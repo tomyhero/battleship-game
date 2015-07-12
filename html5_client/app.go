@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
+
 	"github.com/tomyhero/battleship-game/html5_client/app/game"
 	"github.com/tomyhero/battleship-game/utils"
 	"github.com/zenazn/goji"
@@ -44,4 +46,5 @@ func setupWebApp(config *utils.Config) utils.WebApp {
 
 func setupGoji(webApp utils.WebApp) {
 	goji.Handle("/game/*", game.NewMux(webApp))
+	goji.Get("/game", http.RedirectHandler("/game/", 301))
 }
