@@ -6,6 +6,7 @@ import (
 	"github.com/tomyhero/battleship-game/html5_client/app/game"
 	"github.com/tomyhero/battleship-game/utils"
 	"github.com/zenazn/goji"
+	"net/http"
 )
 
 var flagValue struct {
@@ -44,4 +45,5 @@ func setupWebApp(config *utils.Config) utils.WebApp {
 
 func setupGoji(webApp utils.WebApp) {
 	goji.Handle("/game/*", game.NewMux(webApp))
+	goji.Get("/static/*", http.FileServer(http.Dir(webApp.Config.HTML5ClientServer.AssetsPath)))
 }

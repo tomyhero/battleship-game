@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>submarine game</title>
+<script type="text/javascript" src="/static/js/enchant.js"></script>
 </head>
 <body>
 
@@ -8,6 +9,11 @@
 
 
 <script type="text/javascript">
+
+
+enchant();
+
+
 var game = { 
     socket : null,
     start : function(){
