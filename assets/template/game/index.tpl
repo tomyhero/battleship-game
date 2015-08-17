@@ -27,8 +27,15 @@ var matching = {
         }
 
         matching.socket.onmessage = function(event) {
+        console.log("Called onMessage");
             if (event && event.data) {
-                console.log(event.data);
+                var data =JSON.parse(event.data)
+                console.log(data);
+
+                if (data["cmd"] == "found" ) {
+                    console.log('todo start game');
+                }
+
             }
         };
 
@@ -48,6 +55,7 @@ var matching = {
 matching.start();
 
 </script>
+
 
 </body>
 </html>

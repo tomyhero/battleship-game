@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/tomyhero/battleship-game/matching/data"
+	"github.com/tomyhero/battleship-game/utils"
 	"golang.org/x/net/websocket"
 )
 
@@ -29,9 +30,12 @@ func (self Handler) Search(conn *websocket.Conn, data data.Interface) {
 	self.server.WaitingLock.Unlock()
 
 	if onMatch {
-		// TODO send to matchid to enemy(to server)
-		fmt.Println("EnemyConn", enemyConn)
-		// return match (to client)
+		matchingID := map[string]string{"cmd": "found", "matching_id": utils.GUID()}
+		err := websocket.JSON.Send(enemyConn, matchingID)
+		fmt.Println(err)
+		err = websocket.JSON.Send(conn, matchingID)
+		fmt.Println(err)
+		// return match info (this user and enemy client)
 	}
 
 }
