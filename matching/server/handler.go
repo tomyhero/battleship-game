@@ -39,8 +39,3 @@ func (self Handler) Search(conn *websocket.Conn, data data.Interface) {
 	}
 
 }
-
-func (seslf Handler) Found(conn *websocket.Conn, data data.Interface) {
-	fmt.Println(data, "Found")
-
-}

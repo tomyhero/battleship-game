@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/tomyhero/battleship-game/matching/data"
+	"github.com/tomyhero/battleship-game/game/data"
 	"golang.org/x/net/websocket"
 	"reflect"
 )
@@ -22,8 +22,7 @@ func (self *Dispatcher) loadActions() {
 	actions := map[string]reflect.Value{}
 
 	handler := Handler{server: self.server}
-	actions["search"] = reflect.ValueOf(handler).MethodByName("Search")
-	actions["found"] = reflect.ValueOf(handler).MethodByName("Found")
+	actions["start"] = reflect.ValueOf(handler).MethodByName("Start")
 	self.actions = actions
 }
 
@@ -55,8 +54,8 @@ func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{})
 
 // TODO make it more smarter
 func (self *Dispatcher) findData(cmd string) (data.Interface, error) {
-	if cmd == "search" {
-		return data.Search{}, nil
+	if cmd == "start" {
+		return data.Start{}, nil
 	}
 
 	return nil, fmt.Errorf("NOT_FOUND")

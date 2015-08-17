@@ -8,11 +8,16 @@ import (
 // Config struct hold your configuration values
 type Config struct {
 	GameServer        GameServerSection        `toml:"game_server"`
+	MatchingServer    MatchingServerSection    `toml:"matching_server"`
 	HTML5ClientServer HTML5ClientServerSection `toml:"html5_client_server"`
 }
 
+type MatchingServerSection struct {
+	Endpoint string `toml:"endpoint"`
+}
+
 type GameServerSection struct {
-	MatchingEndpoint string `toml:"matching_endpoint"`
+	Endpoint string `toml:"endpoint"`
 }
 
 type HTML5ClientServerSection struct {
