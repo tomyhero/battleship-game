@@ -110,8 +110,12 @@ div.enemy {
 
 var game = { 
     socket : null,
+    user_id : null,
+    matching_id : null,
     grid : { x : 16 , y : 16 },
-    start : function(){
+    start : function(matching_id,user_id){
+        game.matching_id =  matching_id;
+        game.user_id =  user_id;
         game._connect();
         game._start();
     },
@@ -139,7 +143,7 @@ var game = {
     _start : function(){
         // need to way to open
         game.socket.onopen = function() { 
-            game.socket.send('{"cmd":"start"}');
+            game.socket.send('{"cmd":"start","matching_id":"' + game.matching_id + '","user_id":"' + game.user_id +'"}');
         };
 
         $('#game-container').html( $('#tmpl_game').template({ grid : game.grid }) );
@@ -190,7 +194,7 @@ var matching = {
 
                 if (data["cmd"] == "found" ) {
                     $('#status-container').html("Found!");
-                    game.start();
+                    game.start( data["matching_id"] , data["user_id"]);
                 }
 
             }

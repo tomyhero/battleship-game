@@ -33,7 +33,6 @@ func (self *Dispatcher) findAction(cmd string) (reflect.Value, bool) {
 
 func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{}) error {
 
-	fmt.Println("Call Dispatch", d)
 	cmd, ok := d["cmd"]
 
 	if !ok {
@@ -47,7 +46,9 @@ func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{})
 	}
 
 	data, _ := self.findData(cmd.(string))
+
 	data.Load(d)
+
 	action.Call([]reflect.Value{reflect.ValueOf(conn), reflect.ValueOf(data)})
 	return nil
 }
@@ -55,7 +56,7 @@ func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{})
 // TODO make it more smarter
 func (self *Dispatcher) findData(cmd string) (data.Interface, error) {
 	if cmd == "start" {
-		return data.Start{}, nil
+		return &data.Start{}, nil
 	}
 
 	return nil, fmt.Errorf("NOT_FOUND")

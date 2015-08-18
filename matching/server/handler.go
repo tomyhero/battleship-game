@@ -30,10 +30,10 @@ func (self Handler) Search(conn *websocket.Conn, data data.Interface) {
 	self.server.WaitingLock.Unlock()
 
 	if onMatch {
-		matchingID := map[string]string{"cmd": "found", "matching_id": utils.GUID()}
-		err := websocket.JSON.Send(enemyConn, matchingID)
+		matchingID := utils.GUID()
+		err := websocket.JSON.Send(enemyConn, map[string]string{"cmd": "found", "user_id": utils.GUID(), "matching_id": matchingID})
 		fmt.Println(err)
-		err = websocket.JSON.Send(conn, matchingID)
+		err = websocket.JSON.Send(conn, map[string]string{"cmd": "found", "user_id": utils.GUID(), "matching_id": matchingID})
 		fmt.Println(err)
 		// return match info (this user and enemy client)
 	}
