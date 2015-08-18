@@ -111,7 +111,7 @@ div.enemy {
         <% for (y=0;y<Enemy["Fields"].length;++y) { %>
             <tr>
             <% for (x=0;x<Enemy["Fields"][y].length;++x) { %>
-                <td><div id="me_<%= y %>_<%= x %>" class="grid enemy"></div></td>
+                <td><div id="enemy_<%= y %>_<%= x %>" class="grid enemy" data-hit-type="<%= Enemy["Fields"][y][x]["HitType"] %>" onClick="game.attack(<%= y %>,<%= x %>);"></div></td>
            <% } %>
            </tr>
         <% } %>
@@ -160,12 +160,34 @@ var game = {
     socket : null,
     user_id : null,
     matching_id : null,
+    is_your_turn : false,
+    attack_lock: false,
     grid : { x : 16 , y : 16 },
     start : function(matching_id,user_id){
         game.matching_id =  matching_id;
         game.user_id =  user_id;
         game._connect();
         game._start();
+    },
+    attack : function(y,x) {
+        if ( game.attack_lock ) {
+            return;
+        }
+        game.attack_lock = true;
+        // 自分のターンの場合のみ
+            
+        if ( game.is_your_turn ) {
+            var hit_type = $('#enemy_' + y + '_' + x).attr("data-hit-type");
+
+            // 攻撃をまだしていないフィールド
+            if ( hit_type  == 0  ){
+                
+                game.socket.send('{"cmd":"attack","matching_id":"' + game.matching_id + '","y" : ' + y + ',"x" : ' + x + '}');
+
+            }
+          
+        }
+        game.attack_lock = false;
     },
     _connect : function(){
         var url = "{{.game_endpoint}}";
@@ -185,7 +207,15 @@ var game = {
                 var data =JSON.parse(event.data)
 
                 if (data["cmd"] == "start" ) {
+                    game.is_your_turn = JSON.parse(data["data"])["IsYourTurn"];
                     $('#game-container').html( $('#tmpl_game').template(JSON.parse(data["data"])) );
+                    if ( game.is_your_turn ) {
+                        $('#status-container').html("あなたのターンです");
+                    }
+                    else {
+                        $('#status-container').html("敵ののターンです");
+                    }
+                        
                 }
             }
         };

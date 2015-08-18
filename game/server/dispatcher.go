@@ -23,7 +23,18 @@ func (self *Dispatcher) loadActions() {
 
 	handler := Handler{server: self.server}
 	actions["start"] = reflect.ValueOf(handler).MethodByName("Start")
+	actions["attack"] = reflect.ValueOf(handler).MethodByName("Attack")
 	self.actions = actions
+}
+
+// TODO make it more smarter
+func (self *Dispatcher) findIn(cmd string) (in.Interface, error) {
+	if cmd == "start" {
+		return &in.Start{}, nil
+	} else if cmd == "attack" {
+		return &in.Attack{}, nil
+	}
+	return nil, fmt.Errorf("NOT_FOUND")
 }
 
 func (self *Dispatcher) findAction(cmd string) (reflect.Value, bool) {
@@ -51,12 +62,4 @@ func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{})
 
 	action.Call([]reflect.Value{reflect.ValueOf(conn), reflect.ValueOf(in)})
 	return nil
-}
-
-// TODO make it more smarter
-func (self *Dispatcher) findIn(cmd string) (in.Interface, error) {
-	if cmd == "start" {
-		return &in.Start{}, nil
-	}
-	return nil, fmt.Errorf("NOT_FOUND")
 }

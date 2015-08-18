@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"golang.org/x/net/websocket"
 	"math/rand"
 	"sort"
@@ -16,6 +17,23 @@ type Room struct {
 }
 
 var STATUS = NewCONST_STATUS()
+var HIT_TYPE = NewCONST_HIT_TYPE()
+
+type CONST_HIT_TYPE struct {
+	YET  int
+	MISS int
+	NEAR int
+	HIT  int
+}
+
+func NewCONST_HIT_TYPE() CONST_HIT_TYPE {
+	c := CONST_HIT_TYPE{}
+	c.YET = 0
+	c.MISS = 1
+	c.NEAR = 2
+	c.HIT = 3
+	return c
+}
 
 type CONST_STATUS struct {
 	INITIALIZE int
@@ -65,10 +83,20 @@ func (self *Room) Enemy(userID string) map[string]interface{} {
 	return map[string]interface{}{"Fields": fields}
 }
 
+func (self *Room) IsYourTurn(userID string) bool {
+	id := self.Order[self.CurrentTurn]
+
+	if userID == id {
+		return true
+	} else {
+		return false
+	}
+}
+
 func (self *Room) ToJSON(userID string) string {
 	d := map[string]interface{}{}
 	d["Status"] = self.Status
-	d["CurrentTurn"] = self.CurrentTurn
+	d["IsYourTurn"] = self.IsYourTurn(userID)
 	d["Me"] = self.Users[userID]
 	d["Enemy"] = self.Enemy(userID)
 
@@ -100,6 +128,80 @@ type Field struct {
 	ShipID        int
 	ShipPart      int
 	ShipDirection bool
+}
+
+func (self *User) IsNearShip(y int, x int) bool {
+	a := y + 1
+	b := y - 1
+
+	if a < len(self.Fields) {
+		// 真下
+		if self.Fields[a][x].ShipID != 0 {
+			return true
+		}
+
+		d := x + 1
+		e := x - 1
+
+		if d < len(self.Fields[a]) {
+			// 右下
+			if self.Fields[a][d].ShipID != 0 {
+				return true
+			}
+		}
+
+		if e >= 0 {
+			// 左下
+			if self.Fields[a][e].ShipID != 0 {
+				return true
+			}
+		}
+
+	}
+
+	if b >= 0 {
+		// 真上
+		if self.Fields[b][x].ShipID != 0 {
+			return true
+		}
+
+		d := x + 1
+		e := x - 1
+
+		if d < len(self.Fields[b]) {
+			// 右上
+			if self.Fields[b][d].ShipID != 0 {
+				return true
+			}
+		}
+
+		if e >= 0 {
+			// 左上
+			if self.Fields[b][e].ShipID != 0 {
+				return true
+			}
+		}
+
+	}
+
+	d := x + 1
+	e := x - 1
+
+	if d < len(self.Fields[y]) {
+		// 右
+		if self.Fields[y][d].ShipID != 0 {
+			return true
+		}
+	}
+
+	if e >= 0 {
+		// 左
+		if self.Fields[y][e].ShipID != 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (self *User) HideShips(g GameSetting) {
@@ -215,6 +317,15 @@ func NewUser(g GameSetting, conn *websocket.Conn) *User {
 	user.HideShips(g)
 	user.Conn = conn
 	return user
+}
+
+func (self *Room) GetUserFromConn(conn *websocket.Conn) (string, *User, error) {
+	for userID, user := range self.Users {
+		if user.Conn == conn {
+			return userID, user, nil
+		}
+	}
+	return "", nil, fmt.Errorf("NOT_FOUND")
 }
 
 func (self *Room) SetUser(userID string, conn *websocket.Conn) {
