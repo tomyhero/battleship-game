@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/tomyhero/battleship-game/matching/data"
+	"github.com/tomyhero/battleship-game/matching/in"
 	"github.com/tomyhero/battleship-game/utils"
 	"golang.org/x/net/websocket"
 )
@@ -11,9 +11,7 @@ type Handler struct {
 	server *Server
 }
 
-func (self Handler) Search(conn *websocket.Conn, data data.Interface) {
-
-	fmt.Println(data, "Search", self.server.Waitings)
+func (self Handler) Search(conn *websocket.Conn, in in.Interface) {
 
 	enemyConn := &websocket.Conn{}
 	onMatch := false

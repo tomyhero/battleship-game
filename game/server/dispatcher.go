@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/tomyhero/battleship-game/game/data"
+	"github.com/tomyhero/battleship-game/game/in"
 	"golang.org/x/net/websocket"
 	"reflect"
 )
@@ -45,19 +45,18 @@ func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{})
 		return fmt.Errorf("NOT_FOUND")
 	}
 
-	data, _ := self.findData(cmd.(string))
+	in, _ := self.findIn(cmd.(string))
 
-	data.Load(d)
+	in.Load(d)
 
-	action.Call([]reflect.Value{reflect.ValueOf(conn), reflect.ValueOf(data)})
+	action.Call([]reflect.Value{reflect.ValueOf(conn), reflect.ValueOf(in)})
 	return nil
 }
 
 // TODO make it more smarter
-func (self *Dispatcher) findData(cmd string) (data.Interface, error) {
+func (self *Dispatcher) findIn(cmd string) (in.Interface, error) {
 	if cmd == "start" {
-		return &data.Start{}, nil
+		return &in.Start{}, nil
 	}
-
 	return nil, fmt.Errorf("NOT_FOUND")
 }

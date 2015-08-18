@@ -2,7 +2,7 @@ package server
 
 import (
 	"fmt"
-	"github.com/tomyhero/battleship-game/game/data"
+	"github.com/tomyhero/battleship-game/game/model"
 	"github.com/tomyhero/battleship-game/utils"
 	"golang.org/x/net/websocket"
 	"io"
@@ -12,11 +12,11 @@ import (
 
 type Server struct {
 	Config *utils.Config
-	Rooms  map[string]data.Room
+	Rooms  map[string]*model.Room
 }
 
 func NewServer() Server {
-	server := Server{Rooms: map[string]data.Room{}}
+	server := Server{Rooms: map[string]*model.Room{}}
 	return server
 }
 

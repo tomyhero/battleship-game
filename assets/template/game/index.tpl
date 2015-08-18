@@ -51,18 +51,24 @@ table {
 
 table.grid td, th {
     border: 2px #ffffff solid;
+    padding : 0px;
+    margin : 0px;
+    width  : 30px;
+    height : 30px;
 }
 div.grid {
+    padding : 0px;
+    margin : 0px;
     width  : 30px;
     height : 30px;
 }
 
 div.me {
-    background-color: green;
+    background-color: lightgreen;
 }
 
 div.enemy {
-    background-color: red;
+    background-color: lightblue;
 }
 
 </style>
@@ -70,10 +76,52 @@ div.enemy {
 潜水艦ゲーム
 
 <div id="status-container"></div>
-<div id="game-container" style="align:top">
+<div id="game-container">
 </div>
 
 <script type="text/html" id="tmpl_game">
+
+<table><tr><td>
+    <center>自軍</center>
+    <div id="my-map" style="margin:10px">
+        <table class="grid"> 
+        <% for (y=0;y<Me["Fields"].length;++y) { %>
+            <tr>
+            <% for (x=0;x<Me["Fields"][y].length;++x) { %>
+                <td>
+                <div id="me_<%= y %>_<%= x %>" class="grid me">
+                <% if ( Me["Fields"][y][x]["ShipID"] != 0 ) { %>
+                    <img width="30px" height="30px" src="/static/images/ship_<%= Me["Fields"][y][x]["ShipPart"] %>.png"
+                    <% if( Me["Fields"][y][x]["ShipDirection"] ) { %> 
+                        style="transform: rotate(-90deg);" 
+                     <% } %> 
+                    />
+                <% } else { %>
+                <% }  %>
+                </div></td>
+           <% } %>
+           </tr>
+        <% } %>
+        </table> 
+    </div>
+    </td><td>
+    <center>敵軍</center>
+    <div id="enemy-map" style="margin:10px">
+        <table class="grid"> 
+        <% for (y=0;y<Enemy["Fields"].length;++y) { %>
+            <tr>
+            <% for (x=0;x<Enemy["Fields"][y].length;++x) { %>
+                <td><div id="me_<%= y %>_<%= x %>" class="grid enemy"></div></td>
+           <% } %>
+           </tr>
+        <% } %>
+        </table> 
+    </div>
+</td></tr></table>
+
+
+</script>
+<script type="text/html" id="tmpl_game2">
 <table><tr><td>
     <center>自軍</center>
     <div id="my-map" style="margin:10px">
@@ -133,10 +181,12 @@ var game = {
         console.log("connected");
 
         game.socket.onmessage = function(event) {
-        console.log("Called onMessage");
             if (event && event.data) {
                 var data =JSON.parse(event.data)
-                console.log(data);
+
+                if (data["cmd"] == "start" ) {
+                    $('#game-container').html( $('#tmpl_game').template(JSON.parse(data["data"])) );
+                }
             }
         };
     },
@@ -146,7 +196,6 @@ var game = {
             game.socket.send('{"cmd":"start","matching_id":"' + game.matching_id + '","user_id":"' + game.user_id +'"}');
         };
 
-        $('#game-container').html( $('#tmpl_game').template({ grid : game.grid }) );
 
         $('#status-container').html("Start Game");
     },
@@ -187,10 +236,8 @@ var matching = {
         }
 
         matching.socket.onmessage = function(event) {
-        console.log("Called onMessage");
             if (event && event.data) {
                 var data =JSON.parse(event.data)
-                console.log(data);
 
                 if (data["cmd"] == "found" ) {
                     $('#status-container').html("Found!");
