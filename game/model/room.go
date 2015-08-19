@@ -158,7 +158,7 @@ func (self GameSetting) ShipData() []map[string]interface{} {
 
 func NewGameSetting() GameSetting {
 	g := GameSetting{MaxX: 16, MaxY: 16, MaxPlayer: 2}
-	g.Ships = map[int]int{2: 4, 3: 3, 4: 2, 5: 1}
+	g.Ships = map[int]int{2: 2, 3: 4, 4: 2, 5: 1}
 	//g := GameSetting{MaxX: 8, MaxY: 8, MaxPlayer: 2}
 	//g.Ships = map[int]int{2: 1}
 	return g

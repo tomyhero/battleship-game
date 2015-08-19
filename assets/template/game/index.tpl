@@ -94,8 +94,8 @@ div.enemy {
 <script type="text/html" id="tmpl_game">
 
 <table><tr><td>
-    <center>自軍</center>
     <div id="my-map" style="margin:10px">
+    <center>自軍</center>
 
     <table class="ships">
     <tr>
@@ -142,6 +142,10 @@ div.enemy {
         </table> 
     </div>
     </td><td>
+
+    <div id="enemy-map" style="margin:10px">
+
+
     <center>敵軍</center>
 
 
@@ -168,8 +172,7 @@ div.enemy {
     </table>
 
 
-    <div id="enemy-map" style="margin:10px">
-        <table class="grid"> 
+        <table class="grid" id="enemy-grid"> 
         <% for (y=0;y<Enemy["Fields"].length;++y) { %>
             <tr>
             <% for (x=0;x<Enemy["Fields"][y].length;++x) { %>
@@ -236,6 +239,7 @@ var game = {
                     $('#game-container').html( $('#tmpl_game').template(data["data"]) );
                     if ( game.is_your_turn ) {
                         $('#status-container').html("あなたのターンです");
+                        $('#enemy-map').css('background-color','yellow');
                     }
                     else {
                         $('#status-container').html("敵ののターンです");
@@ -243,6 +247,11 @@ var game = {
                         
                 }
                 else if (data["cmd"] == "turn_end" ) {
+
+                    $('#enemy-map').css('background-color','#ffffff');
+
+
+
                     game.is_your_turn = false;
                     id = '#enemy_' + data["data"]["y"] + '_' + data["data"]["x"];
                     field = data["data"]["field"];
@@ -283,6 +292,9 @@ var game = {
                     }
                 }
                 else if (data["cmd"] == "turn_start" ) {
+
+                    $('#enemy-map').css('background-color','yellow');
+
                     game.is_your_turn = true;
                     id = '#me_' + data["data"]["y"] + '_' + data["data"]["x"];
                     $(id).attr("data-hit-type",data["data"]["field"]["HitType"]);
