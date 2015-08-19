@@ -49,18 +49,30 @@ table {
     border-spacing: 0;
 }
 
+table.ships {
+}
+table.ships th {
+    background-color : lightyellow;
+}
+table.ships td, th {
+    padding : 0px;
+    margin : 0px;
+    width  : 10px;
+    height : 10px;
+}
+
 table.grid td, th {
     border: 2px #ffffff solid;
     padding : 0px;
     margin : 0px;
-    width  : 30px;
-    height : 30px;
+    width  : 25px;
+    height : 25px;
 }
 div.grid {
     padding : 0px;
     margin : 0px;
-    width  : 30px;
-    height : 30px;
+    width  : 25px;
+    height : 25px;
 }
 
 div.me {
@@ -84,6 +96,30 @@ div.enemy {
 <table><tr><td>
     <center>自軍</center>
     <div id="my-map" style="margin:10px">
+
+    <table class="ships">
+    <tr>
+    <th>&nbsp;</th>
+    <th style="width:100">残数</th>
+    </tr>
+    <% for ( i = 0 ; i < Ships.length ; i++ ) { %>
+    <tr>
+        <td>
+        <table><tr>
+        <% for ( j = 0 ; j < Ships[i]["size"] ; j++ ) { %>
+            <% part = 0 ; %>
+            <% if ( j == Ships[i]["size"] - 1 ) { part = 2 } else if (j == 0 ) { part = 0 } else { part = 1 } %>
+            <td><img width="10px" height="10px" src="/static/images/ship_<%= part %>.png" style="transform: rotate(-90deg);" /></td>
+        <% } %>
+        </tr>
+        </table>
+        </td>
+        <td align="right"><span id="me_ship_<%=Ships[i]["size"]%>"><%= Ships[i]["count"] %></span></td>
+    </tr>
+    <% } %>
+    </table>
+
+
         <table class="grid"> 
         <% for (y=0;y<Me["Fields"].length;++y) { %>
             <tr>
@@ -91,7 +127,7 @@ div.enemy {
                 <td>
                 <div id="me_<%= y %>_<%= x %>" class="grid me" data-hit-type="<%= Me["Fields"][y][x]["HitType"] %>">
                 <% if ( Me["Fields"][y][x]["ShipID"] != 0 ) { %>
-                    <img width="30px" height="30px" src="/static/images/ship_<%= Me["Fields"][y][x]["ShipPart"] %>.png"
+                    <img width="25px" height="25px" src="/static/images/ship_<%= Me["Fields"][y][x]["ShipPart"] %>.png"
                     <% if( Me["Fields"][y][x]["ShipDirection"] ) { %> 
                         style="transform: rotate(-90deg);" 
                      <% } %> 
@@ -106,6 +142,31 @@ div.enemy {
     </div>
     </td><td>
     <center>敵軍</center>
+
+
+    <table class="ships">
+    <tr>
+    <th>&nbsp;</th>
+    <th style="width:100">残数</th>
+    </tr>
+    <% for ( i = 0 ; i < Ships.length ; i++ ) { %>
+    <tr>
+        <td>
+        <table><tr>
+        <% for ( j = 0 ; j < Ships[i]["size"] ; j++ ) { %>
+            <% part = 0 ; %>
+            <% if ( j == Ships[i]["size"] - 1 ) { part = 2 } else if (j == 0 ) { part = 0 } else { part = 1 } %>
+            <td><img width="10px" height="10px" src="/static/images/ship_<%= part %>.png" style="transform: rotate(-90deg);" /></td>
+        <% } %>
+        </tr>
+        </table>
+        </td>
+        <td align="right"><span id="enemy_ship_<%=Ships[i]["size"]%>"><%= Ships[i]["count"] %></span></td>
+    </tr>
+    <% } %>
+    </table>
+
+
     <div id="enemy-map" style="margin:10px">
         <table class="grid"> 
         <% for (y=0;y<Enemy["Fields"].length;++y) { %>
@@ -121,36 +182,6 @@ div.enemy {
 
 
 </script>
-<script type="text/html" id="tmpl_game2">
-<table><tr><td>
-    <center>自軍</center>
-    <div id="my-map" style="margin:10px">
-        <table class="grid"> 
-        <% for (y=0;y<grid.y;++y) { %>
-            <tr>
-            <% for (x=0;x<grid.x;++x) { %>
-                <td><div id="me_<%= y %>_<%= x %>" class="grid me"></div></td>
-           <% } %>
-           </tr>
-        <% } %>
-        </table> 
-    </div>
-    </td><td>
-    <center>敵軍</center>
-    <div id="enemy-map" style="margin:10px">
-        <table class="grid"> 
-        <% for (y=0;y<grid.y;++y) { %>
-            <tr>
-            <% for (x=0;x<grid.x;++x) { %>
-                <td><div id="enemy_<%= y %>_<%= x %>" class="grid enemy"></div></td>
-           <% } %>
-           </tr>
-        <% } %>
-        </table> 
-    </div>
-</td></tr></table>
-</script>
-
 <script src="/static/js/jquery-1.11.2.min.js"></script>
 <script src="/static/js/jquery.ze.js"></script>
 <script type="text/javascript">
@@ -217,7 +248,7 @@ var game = {
                     $(id).attr("data-hit-type",field["HitType"]);
                     
                     if ( field["ShipID"] != 0 ) {
-                        html = '<img width="30px" height="30px" src="/static/images/ship_' +  
+                        html = '<img width="25px" height="25px" src="/static/images/ship_' +  
                             field["ShipPart"] + '.png"';
                         if ( field["ShipDirection"] ) {
                             html += ' style="transform: rotate(-90deg);"'
@@ -225,6 +256,13 @@ var game = {
                         html += ">";
 
                         $(id).html(html);
+                    }
+
+                    // 船撃沈
+                    if ( data["data"]["destroy_ship_size"]  != 0 ) {
+                        num_id = '#enemy_ship_' + data["data"]["destroy_ship_size"]  ;
+                        count = $(num_id).text();
+                        $(num_id).text( count - 1);
                     }
 
                     // 近く
@@ -248,6 +286,13 @@ var game = {
                     id = '#me_' + data["data"]["y"] + '_' + data["data"]["x"];
                     $(id).attr("data-hit-type",data["data"]["field"]["HitType"]);
                     $(id).css("background-color","red");
+
+                    // 船撃沈
+                    if ( data["data"]["destroy_ship_size"]  != 0 ) {
+                        num_id = '#me_ship_' + data["data"]["destroy_ship_size"]  ;
+                        count = $(num_id).text();
+                        $(num_id).text( count - 1);
+                    }
 
                     if ( data["data"]["on_finish"] ) {
                         game.is_your_turn = false;
