@@ -126,6 +126,7 @@ func (self *Room) ToData(userID string) map[string]interface{} {
 	d["IsYourTurn"] = self.IsYourTurn(userID)
 	d["Me"] = self.Users[userID]
 	d["Enemy"] = self.Enemy(userID)
+	d["Ships"] = self.GameSetting.ShipData()
 	return d
 }
 
@@ -134,6 +135,25 @@ type GameSetting struct {
 	MaxY      int
 	MaxPlayer int
 	Ships     map[int]int
+}
+
+func (self GameSetting) ShipData() []map[string]interface{} {
+	a := []map[string]interface{}{}
+
+	shipSizes := []int{}
+
+	for size, _ := range self.Ships {
+		shipSizes = append(shipSizes, size)
+	}
+
+	sort.Sort(sort.Reverse(sort.IntSlice(shipSizes)))
+
+	for _, size := range shipSizes {
+		count := self.Ships[size]
+		d := map[string]interface{}{"size": size, "count": count}
+		a = append(a, d)
+	}
+	return a
 }
 
 func NewGameSetting() GameSetting {
@@ -371,4 +391,26 @@ func (self GameSetting) GenerateFields() [][]*Field {
 		}
 	}
 	return fields
+}
+
+func (self *Room) GetDestroyShipSize(enemy *User, target *Field) int {
+
+	if target.ShipID == 0 {
+		return 0
+	}
+
+	size := 0
+	for _, line := range enemy.Fields {
+		for _, field := range line {
+			if field.ShipID == target.ShipID {
+				// 攻撃受けてないパーツ
+				if field.HitType == 0 {
+					return 0
+				} else {
+					size = size + 1
+				}
+			}
+		}
+	}
+	return size
 }

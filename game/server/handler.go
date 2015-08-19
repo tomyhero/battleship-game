@@ -53,13 +53,15 @@ func (self Handler) Attack(conn *websocket.Conn, d in.Interface) {
 		field.HitType = model.HIT_TYPE.HIT
 	}
 
-	fmt.Println(enemy.Fields[in.Y][in.X].HitType)
+	destroyShipSize := room.GetDestroyShipSize(enemy, field)
+
+	fmt.Println("destoroy", destroyShipSize)
 
 	room.ChangeTurn()
 
 	onFinish := room.IsFinishGame(userID)
 
-	data := map[string]interface{}{"x": in.X, "y": in.Y, "field": field, "on_finish": onFinish}
+	data := map[string]interface{}{"x": in.X, "y": in.Y, "field": field, "on_finish": onFinish, "destroy_ship_size": destroyShipSize}
 
 	err = websocket.JSON.Send(conn, map[string]interface{}{"cmd": "turn_end", "data": data})
 	if err != nil {
