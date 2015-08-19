@@ -1,0 +1,6 @@
+[matching_server]
+endpoint = "ws://{{SHIP_HOST}}:{{SHIP_MATCH_PORT}}/matching"
+[game_server]
+endpoint = "ws://{{SHIP_HOST}}:{{SHIP_GAME_PORT}}/game"
+[html5_client_server]
+assets_path = "/go/src/github.com/tomyhero/battleship-game/assets"
