@@ -10,6 +10,7 @@ sed s/{{SHIP_HOST}}/$SHIP_HOST/g -i /app/assets/config.toml
 sed s/{{SHIP_MATCH_PORT}}/$SHIP_MATCH_PORT/g -i /app/assets/config.toml
 sed s/{{SHIP_GAME_PORT}}/$SHIP_GAME_PORT/g -i /app/assets/config.toml
 
+cd /go/src/github.com/tomyhero/battleship-game/ ; git pull ; git checkout develop ; go install ./...
 
 # とりあえず適当に立ち上げる
 /go/bin/matching --config="/app/assets/config.toml" --port=${SHIP_MATCH_PORT} &
