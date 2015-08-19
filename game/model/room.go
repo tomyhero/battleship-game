@@ -1,7 +1,7 @@
 package model
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	"golang.org/x/net/websocket"
 	"math/rand"
@@ -59,6 +59,23 @@ func NewRoom() *Room {
 	return &room
 }
 
+func (self *Room) IsFinishGame(userID string) bool {
+	enemy := self.Users[self.EnemyUserID(userID)]
+
+	for _, line := range enemy.Fields {
+		for _, field := range line {
+			if field.ShipID != 0 {
+				// 壊れてない船がまだある
+				if field.HitType == HIT_TYPE.YET {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
+}
+
 func (self *Room) EnemyUserID(userID string) string {
 	enemyUserID := ""
 	for id, _ := range self.Users {
@@ -83,6 +100,16 @@ func (self *Room) Enemy(userID string) map[string]interface{} {
 	return map[string]interface{}{"Fields": fields}
 }
 
+func (self *Room) ChangeTurn() {
+
+	if self.CurrentTurn == 0 {
+		self.CurrentTurn = 1
+	} else {
+		self.CurrentTurn = 0
+	}
+
+}
+
 func (self *Room) IsYourTurn(userID string) bool {
 	id := self.Order[self.CurrentTurn]
 
@@ -93,16 +120,13 @@ func (self *Room) IsYourTurn(userID string) bool {
 	}
 }
 
-func (self *Room) ToJSON(userID string) string {
+func (self *Room) ToData(userID string) map[string]interface{} {
 	d := map[string]interface{}{}
 	d["Status"] = self.Status
 	d["IsYourTurn"] = self.IsYourTurn(userID)
 	d["Me"] = self.Users[userID]
 	d["Enemy"] = self.Enemy(userID)
-
-	json, _ := json.Marshal(d)
-
-	return string(json)
+	return d
 }
 
 type GameSetting struct {
@@ -115,6 +139,8 @@ type GameSetting struct {
 func NewGameSetting() GameSetting {
 	g := GameSetting{MaxX: 16, MaxY: 16, MaxPlayer: 2}
 	g.Ships = map[int]int{2: 4, 3: 3, 4: 2, 5: 1}
+	//g := GameSetting{MaxX: 8, MaxY: 8, MaxPlayer: 2}
+	//g.Ships = map[int]int{2: 1}
 	return g
 }
 

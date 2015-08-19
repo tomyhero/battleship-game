@@ -89,7 +89,7 @@ div.enemy {
             <tr>
             <% for (x=0;x<Me["Fields"][y].length;++x) { %>
                 <td>
-                <div id="me_<%= y %>_<%= x %>" class="grid me">
+                <div id="me_<%= y %>_<%= x %>" class="grid me" data-hit-type="<%= Me["Fields"][y][x]["HitType"] %>">
                 <% if ( Me["Fields"][y][x]["ShipID"] != 0 ) { %>
                     <img width="30px" height="30px" src="/static/images/ship_<%= Me["Fields"][y][x]["ShipPart"] %>.png"
                     <% if( Me["Fields"][y][x]["ShipDirection"] ) { %> 
@@ -161,8 +161,6 @@ var game = {
     user_id : null,
     matching_id : null,
     is_your_turn : false,
-    attack_lock: false,
-    grid : { x : 16 , y : 16 },
     start : function(matching_id,user_id){
         game.matching_id =  matching_id;
         game.user_id =  user_id;
@@ -170,10 +168,6 @@ var game = {
         game._start();
     },
     attack : function(y,x) {
-        if ( game.attack_lock ) {
-            return;
-        }
-        game.attack_lock = true;
         // 自分のターンの場合のみ
             
         if ( game.is_your_turn ) {
@@ -187,7 +181,6 @@ var game = {
             }
           
         }
-        game.attack_lock = false;
     },
     _connect : function(){
         var url = "{{.game_endpoint}}";
@@ -207,8 +200,8 @@ var game = {
                 var data =JSON.parse(event.data)
 
                 if (data["cmd"] == "start" ) {
-                    game.is_your_turn = JSON.parse(data["data"])["IsYourTurn"];
-                    $('#game-container').html( $('#tmpl_game').template(JSON.parse(data["data"])) );
+                    game.is_your_turn =data["data"]["IsYourTurn"];
+                    $('#game-container').html( $('#tmpl_game').template(data["data"]) );
                     if ( game.is_your_turn ) {
                         $('#status-container').html("あなたのターンです");
                     }
@@ -216,6 +209,54 @@ var game = {
                         $('#status-container').html("敵ののターンです");
                     }
                         
+                }
+                else if (data["cmd"] == "turn_end" ) {
+                    game.is_your_turn = false;
+                    id = '#enemy_' + data["data"]["y"] + '_' + data["data"]["x"];
+                    field = data["data"]["field"];
+                    $(id).attr("data-hit-type",field["HitType"]);
+                    
+                    if ( field["ShipID"] != 0 ) {
+                        html = '<img width="30px" height="30px" src="/static/images/ship_' +  
+                            field["ShipPart"] + '.png"';
+                        if ( field["ShipDirection"] ) {
+                            html += ' style="transform: rotate(-90deg);"'
+                        }
+                        html += ">";
+
+                        $(id).html(html);
+                    }
+
+                    // 近く
+                    if ( field["HitType"] == 2 ) {
+                        $(id).css("background-color","pink");
+                    }
+                    else {
+                        $(id).css("background-color","red");
+                    }
+
+                    if ( data["data"]["on_finish"] ) {
+                        game.is_your_turn = false;
+                        $('#status-container').html("勝利！");
+                    }
+                    else {
+                        $('#status-container').html("敵ののターンです");
+                    }
+                }
+                else if (data["cmd"] == "turn_start" ) {
+                    game.is_your_turn = true;
+                    id = '#me_' + data["data"]["y"] + '_' + data["data"]["x"];
+                    $(id).attr("data-hit-type",data["data"]["field"]["HitType"]);
+                    $(id).css("background-color","red");
+
+                    if ( data["data"]["on_finish"] ) {
+                        game.is_your_turn = false;
+                        $('#status-container').html("敗北！");
+                    }
+                    else {
+                        $('#status-container').html("あなたのターンです");
+                    }
+
                 }
             }
         };

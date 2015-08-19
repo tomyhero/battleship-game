@@ -54,9 +54,26 @@ func (self Handler) Attack(conn *websocket.Conn, d in.Interface) {
 	}
 
 	fmt.Println(enemy.Fields[in.Y][in.X].HitType)
-	// TODO change turn
-	// TODO send result to client
 
+	room.ChangeTurn()
+
+	onFinish := room.IsFinishGame(userID)
+
+	data := map[string]interface{}{"x": in.X, "y": in.Y, "field": field, "on_finish": onFinish}
+
+	err = websocket.JSON.Send(conn, map[string]interface{}{"cmd": "turn_end", "data": data})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	err = websocket.JSON.Send(enemy.Conn, map[string]interface{}{"cmd": "turn_start", "data": data})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if onFinish {
+		delete(self.server.Rooms, in.MatchingID)
+	}
 }
 
 func (self Handler) Start(conn *websocket.Conn, d in.Interface) {
@@ -69,8 +86,8 @@ func (self Handler) Start(conn *websocket.Conn, d in.Interface) {
 		room.SetUser(in.UserID, conn)
 
 		for userID, user := range room.Users {
-			json := room.ToJSON(userID)
-			err := websocket.JSON.Send(user.Conn, map[string]string{"cmd": "start", "data": json})
+			json := room.ToData(userID)
+			err := websocket.JSON.Send(user.Conn, map[string]interface{}{"cmd": "start", "data": json})
 			if err != nil {
 				fmt.Println(err)
 			}
