@@ -109,7 +109,8 @@ div.enemy {
         <% for ( j = 0 ; j < Ships[i]["size"] ; j++ ) { %>
             <% part = 0 ; %>
             <% if ( j == Ships[i]["size"] - 1 ) { part = 2 } else if (j == 0 ) { part = 0 } else { part = 1 } %>
-            <td><img width="10px" height="10px" src="/static/images/ship_<%= part %>.png" style="transform: rotate(-90deg);" /></td>
+            <td><img width="10px" height="10px" src="/static/images/ship_<%= part %>.png" 
+                style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); transform: rotate(-90deg);" /></td>
         <% } %>
         </tr>
         </table>
@@ -129,7 +130,7 @@ div.enemy {
                 <% if ( Me["Fields"][y][x]["ShipID"] != 0 ) { %>
                     <img width="25px" height="25px" src="/static/images/ship_<%= Me["Fields"][y][x]["ShipPart"] %>.png"
                     <% if( Me["Fields"][y][x]["ShipDirection"] ) { %> 
-                        style="transform: rotate(-90deg);" 
+                        style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg);transform: rotate(-90deg);" 
                      <% } %> 
                     />
                 <% } else { %>
@@ -156,7 +157,7 @@ div.enemy {
         <% for ( j = 0 ; j < Ships[i]["size"] ; j++ ) { %>
             <% part = 0 ; %>
             <% if ( j == Ships[i]["size"] - 1 ) { part = 2 } else if (j == 0 ) { part = 0 } else { part = 1 } %>
-            <td><img width="10px" height="10px" src="/static/images/ship_<%= part %>.png" style="transform: rotate(-90deg);" /></td>
+            <td><img width="10px" height="10px" src="/static/images/ship_<%= part %>.png" style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); transform: rotate(-90deg);" /></td>
         <% } %>
         </tr>
         </table>
@@ -251,7 +252,7 @@ var game = {
                         html = '<img width="25px" height="25px" src="/static/images/ship_' +  
                             field["ShipPart"] + '.png"';
                         if ( field["ShipDirection"] ) {
-                            html += ' style="transform: rotate(-90deg);"'
+                            html += ' style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); transform: rotate(-90deg);"'
                         }
                         html += ">";
 
