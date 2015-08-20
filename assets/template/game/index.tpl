@@ -73,8 +73,11 @@ div.grid {
     margin : 0px;
     width  : 25px;
     height : 25px;
+    background-image: url("/static/images/sea.png");
+    background-size:cover;
 }
 
+/*
 div.me {
     background-color: lightgreen;
 }
@@ -82,6 +85,7 @@ div.me {
 div.enemy {
     background-color: lightblue;
 }
+*/
 
 </style>
 
@@ -258,13 +262,21 @@ var game = {
                     $(id).attr("data-hit-type",field["HitType"]);
                     
                     if ( field["ShipID"] != 0 ) {
-                        html = '<img width="25px" height="25px" src="/static/images/ship_' +  
+                        html = '<img width="25px" height="25px" src="/static/images/ship_broken_' +  
                             field["ShipPart"] + '.png"';
                         if ( field["ShipDirection"] ) {
                             html += ' style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); transform: rotate(-90deg);"'
                         }
                         html += ">";
 
+                        $(id).html(html);
+
+                    } else if ( field["HitType"] == 2 ) {
+                        html = '<img width="25px" height="25px" src="/static/images/bomb_near.png">';
+                        $(id).html(html);
+                    }
+                    else {
+                        html = '<img width="25px" height="25px" src="/static/images/bomb_miss.png">';
                         $(id).html(html);
                     }
 
@@ -275,13 +287,6 @@ var game = {
                         $(num_id).text( count - 1);
                     }
 
-                    // 近く
-                    if ( field["HitType"] == 2 ) {
-                        $(id).css("background-color","pink");
-                    }
-                    else {
-                        $(id).css("background-color","red");
-                    }
 
                     if ( data["data"]["on_finish"] ) {
                         game.is_your_turn = false;
@@ -297,8 +302,31 @@ var game = {
 
                     game.is_your_turn = true;
                     id = '#me_' + data["data"]["y"] + '_' + data["data"]["x"];
-                    $(id).attr("data-hit-type",data["data"]["field"]["HitType"]);
-                    $(id).css("background-color","red");
+
+                    //$(id).attr("data-hit-type",data["data"]["field"]["HitType"]);
+                    //$(id).css("background-color","red");
+
+                    var field = data["data"]["field"];
+
+                    if ( field["ShipID"] != 0 ) {
+                        html = '<img width="25px" height="25px" src="/static/images/ship_broken_' +  
+                            field["ShipPart"] + '.png"';
+                        if ( field["ShipDirection"] ) {
+                            html += ' style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg); transform: rotate(-90deg);"'
+                        }
+                        html += ">";
+
+                        $(id).html(html);
+                    } else if ( field["HitType"] == 2 ) {
+                        html = '<img width="25px" height="25px" src="/static/images/bomb_near.png">';
+                        $(id).html(html);
+                    }
+                    else {
+                        html = '<img width="25px" height="25px" src="/static/images/bomb_miss.png">';
+                        $(id).html(html);
+                    }
+
+
 
                     // 船撃沈
                     if ( data["data"]["destroy_ship_size"]  != 0 ) {
