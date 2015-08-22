@@ -71,7 +71,7 @@ func (self Handler) Attack(conn *websocket.Conn, d in.Interface) {
 
 	if onFinish {
 		// lose
-		data["enemyFields"] = room.Users[room.EnemyUserID(userID)].Fields
+		data["enemyFields"] = room.Users[userID].Fields
 	}
 
 	err = websocket.JSON.Send(enemy.Conn, map[string]interface{}{"cmd": "turn_start", "data": data})
