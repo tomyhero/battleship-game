@@ -190,6 +190,37 @@ div.enemy {
 
 
 </script>
+
+<script type="text/html" id="tmpl_grid">
+    <% for (y=0;y<enemyFields.length;++y) { %>
+    <tr>
+	<% for (x=0;x<enemyFields[y].length;++x) { %>
+	<td>
+	    <div id="enemy_<%= y %>_<%= x %>" class="grid enemy" data-hit-type="<%= enemyFields[y][x]["HitType"] %>" onClick="game.attack(<%= y %>,<%= x %>);">
+	        <% if (enemyFields[y][x]["HitType"] == 0 && enemyFields[y][x]["ShipID"] != 0) { %>
+		    <img width="25px" height="25px" src="/static/images/ship_<%= enemyFields[y][x]["ShipPart"] %>.png"
+		        <% if( enemyFields[y][x]["ShipDirection"] ) { %>
+			    style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg);transform: rotate(-90deg);"
+		        <% } %>
+		    />
+		<% } else if (enemyFields[y][x]["HitType"] == 1) { %>
+		    <img width="25px" height="25px" src="/static/images/ship_broken_<%= enemyFields[y][x]["ShipPart"] %>.png"
+		        <% if( enemyFields[y][x]["ShipDirection"] ) { %>
+		            style="-moz-transform:rotate(-90deg); -webkit-transform:rotate(-90deg);transform: rotate(-90deg);"
+		        <% } %>
+		    />
+		<% } else if (enemyFields[y][x]["HitType"] == 2) { %>
+		    <img width="25px" height="25px" src="/static/images/bomb_near.png">
+		<% } else if (enemyFields[y][x]["HitType"] == 3) { %>
+		    <img width="25px" height="25px" src="/static/images/bomb_miss.png">
+		<% } %>
+	    </div>
+	</td>
+	<% } %>
+    </tr>
+    <% } %>
+</script>
+
 <script src="/static/js/jquery-1.11.2.min.js"></script>
 <script src="/static/js/jquery.ze.js"></script>
 <script type="text/javascript">
@@ -337,6 +368,7 @@ var game = {
 
                     if ( data["data"]["on_finish"] ) {
                         game.is_your_turn = false;
+                        $('#enemy-grid').html( $('#tmpl_grid').template(data["data"]) );
                         $('#status-container').html("敗北！");
                     }
                     else {

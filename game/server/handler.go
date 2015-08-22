@@ -2,10 +2,11 @@ package server
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/tomyhero/battleship-game/game/in"
 	"github.com/tomyhero/battleship-game/game/model"
 	"golang.org/x/net/websocket"
-	"sync"
 )
 
 type Handler struct {
@@ -66,6 +67,11 @@ func (self Handler) Attack(conn *websocket.Conn, d in.Interface) {
 	err = websocket.JSON.Send(conn, map[string]interface{}{"cmd": "turn_end", "data": data})
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	if onFinish {
+		// lose
+		data["enemyFields"] = room.Users[userID].Fields
 	}
 
 	err = websocket.JSON.Send(enemy.Conn, map[string]interface{}{"cmd": "turn_start", "data": data})
