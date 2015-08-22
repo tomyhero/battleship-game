@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/html5_client/app/game"
 	"github.com/tomyhero/battleship-game/utils"
 	"github.com/zenazn/goji"
@@ -24,16 +25,15 @@ func init() {
 func main() {
 	config, err := utils.NewConfigFromFile(flagValue.ConfigPath)
 	if err != nil {
-		fmt.Println(err)
+		log.WithFields(log.Fields{"error": err}).Fatal("Fail to load config")
 		return
 	}
 
-	fmt.Println("Loaded Config", config)
+	log.WithFields(log.Fields{"config": config}).Info("Loaded Config")
 
 	webApp := setupWebApp(config)
 
 	setupGoji(webApp)
-
 	goji.Serve()
 
 }

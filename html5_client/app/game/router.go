@@ -12,6 +12,7 @@ func NewMux(webApp utils.WebApp) *web.Mux {
 
 	root := Root{WebApp: webApp}
 	mux.Get("/", root.Index)
+	mux.Get("/battle", root.Battle)
 
 	return mux
 }
