@@ -58,7 +58,7 @@ func (self *Server) webSocketHandler(conn *websocket.Conn) {
 		err = dispatcher.Dispatch(conn, data)
 
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Dispatch Failed %s", err))
+			log.WithFields(log.Fields{"err": err}).Warn("Dispatch Failed")
 		}
 	}
 

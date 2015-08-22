@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/matching/in"
 	"github.com/tomyhero/battleship-game/utils"
 	"golang.org/x/net/websocket"
@@ -29,11 +29,19 @@ func (self Handler) Search(conn *websocket.Conn, in in.Interface) {
 
 	if onMatch {
 		matchingID := utils.GUID()
-		err := websocket.JSON.Send(enemyConn, map[string]string{"cmd": "found", "user_id": utils.GUID(), "matching_id": matchingID})
-		fmt.Println(err)
-		err = websocket.JSON.Send(conn, map[string]string{"cmd": "found", "user_id": utils.GUID(), "matching_id": matchingID})
-		fmt.Println(err)
-		// return match info (this user and enemy client)
+
+		a := map[string]string{"cmd": "found", "user_id": utils.GUID(), "matching_id": matchingID}
+		err := websocket.JSON.Send(enemyConn, a)
+
+		if err != nil {
+			log.WithFields(log.Fields{"error": err, "data": a}).Info("Fail To Send")
+		}
+
+		b := map[string]string{"cmd": "found", "user_id": utils.GUID(), "matching_id": matchingID}
+		err = websocket.JSON.Send(conn, b)
+		if err != nil {
+			log.WithFields(log.Fields{"error": err, "data": b}).Info("Fail To Send")
+		}
 	}
 
 }

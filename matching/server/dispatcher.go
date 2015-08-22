@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/matching/in"
 	"golang.org/x/net/websocket"
 	"reflect"
@@ -34,29 +35,30 @@ func (self *Dispatcher) findAction(cmd string) (reflect.Value, bool) {
 
 func (self *Dispatcher) Dispatch(conn *websocket.Conn, d map[string]interface{}) error {
 
-	fmt.Println("Call Dispatch", d)
 	cmd, ok := d["cmd"]
 
 	if !ok {
-		fmt.Println("does not have cmd section")
-		return fmt.Errorf("CMD_NOT_FOUND")
+		return fmt.Errorf("command not found")
 	}
+
+	log.WithFields(log.Fields{"cmd": cmd}).Info("Dispatch To ")
+
 	action, hasCommand := self.findAction(cmd.(string))
 
 	if !hasCommand {
-		return fmt.Errorf("NOT_FOUND")
+		return fmt.Errorf("action not found")
 	}
 
-	in, _ := self.findIn(cmd.(string))
+	in := self.findIn(cmd.(string))
 	in.Load(d)
 	action.Call([]reflect.Value{reflect.ValueOf(conn), reflect.ValueOf(in)})
 	return nil
 }
 
-// TODO make it more smarter
-func (self *Dispatcher) findIn(cmd string) (in.Interface, error) {
+func (self *Dispatcher) findIn(cmd string) in.Interface {
 	if cmd == "search" {
-		return &in.Search{}, nil
+		return &in.Search{}
 	}
-	return nil, fmt.Errorf("NOT_FOUND")
+	log.WithFields(log.Fields{"cmd": cmd}).Fatal("Please Implement")
+	return nil
 }

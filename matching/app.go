@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/matching/server"
 	"github.com/tomyhero/battleship-game/utils"
 )
@@ -22,12 +22,12 @@ func main() {
 
 	config, err := utils.NewConfigFromFile(flagValue.ConfigPath)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.WithFields(log.Fields{"error": err}).Fatal("Fail to load config")
 	}
 
-	fmt.Println("Loaded Config", config)
+	log.WithFields(log.Fields{"config": config}).Info("Loaded Config")
 
 	server := server.NewServer()
+	log.WithFields(log.Fields{"port": flagValue.Port}).Info("Start Listen And Serve")
 	server.ListenAndServe(flagValue.Port)
 }
