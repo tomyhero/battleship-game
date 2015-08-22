@@ -14,6 +14,7 @@ type Room struct {
 	CurrentTurn int // index of Current Turn User
 	Users       map[string]*User
 	GameSetting GameSetting
+	MatchingID  string
 }
 
 var STATUS = NewCONST_STATUS()
@@ -50,11 +51,12 @@ func NewCONST_STATUS() CONST_STATUS {
 	return c
 }
 
-func NewRoom() *Room {
+func NewRoom(matchingID string) *Room {
 	room := Room{
 		Users:       map[string]*User{},
 		GameSetting: NewGameSetting(),
 		Status:      STATUS.INITIALIZE,
+		MatchingID:  matchingID,
 		Order:       []string{}}
 	return &room
 }
@@ -164,8 +166,19 @@ func NewGameSetting() GameSetting {
 }
 
 type User struct {
-	Fields [][]*Field
-	Conn   *websocket.Conn
+	Fields      [][]*Field
+	Conn        *websocket.Conn
+	IsConnected bool
+	UserID      string
+	MatchingID  string
+}
+
+func NewUser(matchingID string, userID string, g GameSetting, conn *websocket.Conn) *User {
+	user := &User{IsConnected: true, UserID: userID, MatchingID: matchingID}
+	user.Fields = g.GenerateFields()
+	user.HideShips(g)
+	user.Conn = conn
+	return user
 }
 
 type Field struct {
@@ -356,14 +369,6 @@ func HideShip(id int, fields [][]*Field, size int) {
 	}
 }
 
-func NewUser(g GameSetting, conn *websocket.Conn) *User {
-	user := &User{}
-	user.Fields = g.GenerateFields()
-	user.HideShips(g)
-	user.Conn = conn
-	return user
-}
-
 func (self *Room) GetUserFromConn(conn *websocket.Conn) (string, *User, error) {
 	for userID, user := range self.Users {
 		if user.Conn == conn {
@@ -373,10 +378,10 @@ func (self *Room) GetUserFromConn(conn *websocket.Conn) (string, *User, error) {
 	return "", nil, fmt.Errorf("NOT_FOUND")
 }
 
-func (self *Room) SetUser(userID string, conn *websocket.Conn) {
-	self.Users[userID] = NewUser(self.GameSetting, conn)
+func (self *Room) SetUser(userID string, conn *websocket.Conn) *User {
+	self.Users[userID] = NewUser(self.MatchingID, userID, self.GameSetting, conn)
 	self.Order = append(self.Order, userID)
-
+	return self.Users[userID]
 }
 
 func (self GameSetting) GenerateFields() [][]*Field {

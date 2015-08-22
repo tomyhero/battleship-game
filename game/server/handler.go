@@ -85,7 +85,7 @@ func (self Handler) Start(conn *websocket.Conn, d in.Interface) {
 	room, has := self.server.Rooms[in.MatchingID]
 
 	if has {
-		room.SetUser(in.UserID, conn)
+		self.server.Users[conn] = room.SetUser(in.UserID, conn)
 
 		for userID, user := range room.Users {
 			json := room.ToData(userID)
@@ -96,8 +96,8 @@ func (self Handler) Start(conn *websocket.Conn, d in.Interface) {
 		}
 
 	} else {
-		room = model.NewRoom()
-		room.SetUser(in.UserID, conn)
+		room = model.NewRoom(in.MatchingID)
+		self.server.Users[conn] = room.SetUser(in.UserID, conn)
 		self.server.Rooms[in.MatchingID] = room
 	}
 
