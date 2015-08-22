@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/utils"
 	"golang.org/x/net/websocket"
 	"io"
@@ -25,8 +26,9 @@ func (self *Server) ListenAndServe(port int) {
 	self.Waitings = []*websocket.Conn{}
 	http.Handle("/matching", websocket.Handler(self.webSocketHandler))
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+
 	if err != nil {
-		panic("ListenAndServe: " + err.Error())
+		log.WithFields(log.Fields{"err": err.Error()}).Fatal("Listen And Serve")
 	}
 }
 
@@ -40,22 +42,23 @@ func (self *Server) webSocketHandler(conn *websocket.Conn) {
 
 		if err != nil {
 			if opErr, ok := err.(*net.OpError); ok && opErr.Timeout() {
-				fmt.Println(err)
+				log.WithFields(log.Fields{"error": err}).Info("Error")
 				continue
 			}
 			if err == io.EOF {
-				fmt.Println(fmt.Sprintf("Client Dissconected :%s", conn.RemoteAddr()))
+				log.WithFields(log.Fields{"remoteAddr": conn.RemoteAddr()}).Info("Client Dissconected")
 				break
 			} else {
-				fmt.Println(fmt.Sprintf("Receive Data Failed %s", err))
+				log.WithFields(log.Fields{"error": err}).Info("Receive Data Failed")
 				break
 			}
 		}
 
+		log.WithFields(log.Fields{"data": data}).Info("Start Dispatch")
 		err = dispatcher.Dispatch(conn, data)
 
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Dispatch Failed %s", err))
+			log.WithFields(log.Fields{"err": err}).Warn("Dispatch Failed")
 		}
 	}
 
@@ -78,6 +81,7 @@ func (self *Server) DeleteWaitingEntry(conn *websocket.Conn) {
 		}
 	}
 	if match != -1 {
+		log.Info("Delete Waiting Entry")
 		self.Waitings = append(self.Waitings[:match], self.Waitings[match+1:]...)
 	}
 }
