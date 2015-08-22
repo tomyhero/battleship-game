@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/game/server"
 	"github.com/tomyhero/battleship-game/utils"
 )
@@ -25,8 +26,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
-	fmt.Println("Loaded Config", config)
+	log.WithFields(log.Fields{"config": config}).Info("Loaded Config")
 
 	server := server.NewServer()
 	server.ListenAndServe(flagValue.Port)
