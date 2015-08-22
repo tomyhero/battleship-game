@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/goji/glogrus"
 	"github.com/tomyhero/battleship-game/html5_client/app/game"
 	"github.com/tomyhero/battleship-game/utils"
 	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/web/middleware"
 	"net/http"
 )
 
@@ -44,6 +46,13 @@ func setupWebApp(config *utils.Config) utils.WebApp {
 }
 
 func setupGoji(webApp utils.WebApp) {
+
+	goji.Abandon(middleware.Logger)
+
+	logr := log.New()
+	logr.Formatter = new(log.JSONFormatter)
+	goji.Use(glogrus.NewGlogrus(logr, "web"))
+
 	goji.Handle("/game/*", game.NewMux(webApp))
 	goji.Get("/static/*", http.FileServer(http.Dir(webApp.Config.HTML5ClientServer.AssetsPath)))
 }
