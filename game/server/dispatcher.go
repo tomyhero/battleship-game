@@ -24,6 +24,9 @@ func (self *Dispatcher) loadActions() {
 	handler := Handler{server: self.server}
 	actions["start"] = reflect.ValueOf(handler).MethodByName("Start")
 	actions["attack"] = reflect.ValueOf(handler).MethodByName("Attack")
+	actions["login"] = reflect.ValueOf(handler).MethodByName("Login")
+	actions["resume"] = reflect.ValueOf(handler).MethodByName("Resume")
+
 	self.actions = actions
 }
 
@@ -33,6 +36,10 @@ func (self *Dispatcher) findIn(cmd string) (in.Interface, error) {
 		return &in.Start{}, nil
 	} else if cmd == "attack" {
 		return &in.Attack{}, nil
+	} else if cmd == "login" {
+		return &in.Login{}, nil
+	} else if cmd == "resume" {
+		return &in.Resume{}, nil
 	}
 	return nil, fmt.Errorf("NOT_FOUND")
 }
