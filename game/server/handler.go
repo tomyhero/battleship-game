@@ -2,11 +2,11 @@ package server
 
 import (
 	"fmt"
-	"sync"
-
+	log "github.com/Sirupsen/logrus"
 	"github.com/tomyhero/battleship-game/game/in"
 	"github.com/tomyhero/battleship-game/game/model"
 	"golang.org/x/net/websocket"
+	"sync"
 )
 
 type Handler struct {
@@ -108,4 +108,35 @@ func (self Handler) Start(conn *websocket.Conn, d in.Interface) {
 	}
 
 	self.StartLock.Unlock()
+}
+func (self Handler) Login(conn *websocket.Conn, d in.Interface) {
+	in := d.(*in.Login)
+
+	data := map[string]interface{}{"cmd": "login", "next_action": ""}
+	nextAction := "start"
+
+	room, has := self.server.Rooms[in.MatchingID]
+
+	if has {
+		fmt.Println("Has Room")
+		user, has := room.Users[in.UserID]
+		if has {
+			fmt.Println("Has User")
+			if user.IsConnected == false {
+				nextAction = "resume"
+			}
+		} else {
+			//nextAction = "not_authorized"
+		}
+	}
+	data["next_action"] = nextAction
+	err := websocket.JSON.Send(conn, data)
+
+	if err != nil {
+		log.WithFields(log.Fields{"error": err, "data": d}).Info("Fail to send")
+	}
+
+}
+func (self Handler) Resume(conn *websocket.Conn, d in.Interface) {
+	// TODO
 }

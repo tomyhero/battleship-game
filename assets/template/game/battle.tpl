@@ -178,11 +178,11 @@ var game = {
     user_id : null,
     matching_id : null,
     is_your_turn : false,
-    start : function(matching_id,user_id){
+    connect : function(matching_id,user_id){
         game.matching_id =  matching_id;
         game.user_id =  user_id;
         game._connect();
-        game._start();
+        game.login();
     },
     attack : function(y,x) {
         // 自分のターンの場合のみ
@@ -215,8 +215,22 @@ var game = {
         game.socket.onmessage = function(event) {
             if (event && event.data) {
                 var data =JSON.parse(event.data)
+                console.log(data);
 
-                if (data["cmd"] == "start" ) {
+                if (data["cmd"] == "login" ) {
+                    if ( data["next_action"] == "start" ) {
+                        game.start();
+                    } else if ( data["next_action"] == "resume" ) {
+                        game.resume();
+                    } else if ( data["next_action"] == "not_authorized" ) {
+                        console.log('not authorized');
+                    } else {
+                        console.log("error");
+                    }
+
+                } else if (data["cmd"] == "resume" ) {
+
+                } else if (data["cmd"] == "start" ) {
                     game.is_your_turn =data["data"]["IsYourTurn"];
                     $('#game-container').html( $('#tmpl_game').template(data["data"]) );
                     if ( game.is_your_turn ) {
@@ -326,13 +340,18 @@ var game = {
             }
         };
     },
-    _start : function(){
+    login : function(){
         // need to way to open
         game.socket.onopen = function() { 
-            game.socket.send('{"cmd":"start","matching_id":"' + game.matching_id + '","user_id":"' + game.user_id +'"}');
+            game.socket.send('{"cmd":"login","matching_id":"' + game.matching_id + '","user_id":"' + game.user_id +'"}');
         };
-
-
+    },
+    resume : function(){
+            game.socket.send('{"cmd":"resume","matching_id":"' + game.matching_id + '","user_id":"' + game.user_id +'"}');
+        $('#status-container').html("Resume Game");
+    },
+    start : function(){
+            game.socket.send('{"cmd":"start","matching_id":"' + game.matching_id + '","user_id":"' + game.user_id +'"}');
         $('#status-container').html("Start Game");
     },
     createGrid : function(prefix){
@@ -355,7 +374,7 @@ $(document).ready(function(){
     h = h.replace( /^#/ , '' );
     var tmp = h.split("/");
     console.log(tmp);
-    game.start( tmp[0] , tmp[1]);
+    game.connect( tmp[0] , tmp[1]);
 });
 
 </script>
