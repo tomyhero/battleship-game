@@ -23,7 +23,7 @@ func main() {
 
 	config, err := utils.NewConfigFromFile(flagValue.ConfigPath)
 	if err != nil {
-		fmt.Println(err)
+		log.WithFields(log.Fields{"error": err}).Fatal("Fail to load config")
 		return
 	}
 	log.WithFields(log.Fields{"config": config}).Info("Loaded Config")
