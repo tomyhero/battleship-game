@@ -131,10 +131,9 @@ func (self *Room) ToData(userID string) map[string]interface{} {
 }
 
 type GameSetting struct {
-	MaxX      int
-	MaxY      int
-	MaxPlayer int
-	Ships     map[int]int
+	MaxX  int
+	MaxY  int
+	Ships map[int]int
 }
 
 func (self GameSetting) ShipData() []map[string]interface{} {
@@ -157,9 +156,9 @@ func (self GameSetting) ShipData() []map[string]interface{} {
 }
 
 func NewGameSetting() GameSetting {
-	g := GameSetting{MaxX: 16, MaxY: 16, MaxPlayer: 2}
+	g := GameSetting{MaxX: 16, MaxY: 16}
 	g.Ships = map[int]int{2: 2, 3: 4, 4: 2, 5: 1}
-	//g := GameSetting{MaxX: 8, MaxY: 8, MaxPlayer: 2}
+	//g := GameSetting{MaxX: 8, MaxY: 8}
 	//g.Ships = map[int]int{2: 1}
 	return g
 }
